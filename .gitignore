@@ -41,8 +41,7 @@ frontend/dist-ssr/
 .eslintcache
 
 # Environment & IDE
-.env
-.env.local
+.env*
 .vscode/
 .idea/
 *.swp

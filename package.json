@@ -1,0 +1,21 @@
+{
+  "name": "demandiq-workspace",
+  "version": "1.0.0",
+  "description": "DemandIQ — Intelligent Local Business Demand Forecasting & Inventory Optimization Platform",
+  "private": true,
+  "scripts": {
+    "start": "python main.py",
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "test": "pytest backend/tests -v"
+  },
+  "keywords": [
+    "demand-forecasting",
+    "inventory-optimization",
+    "retail-analytics",
+    "kirana",
+    "machine-learning"
+  ],
+  "author": "DemandIQ Team",
+  "license": "UNLICENSED"
+}
