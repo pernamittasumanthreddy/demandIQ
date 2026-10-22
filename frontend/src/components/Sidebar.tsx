@@ -11,8 +11,9 @@ import {
   ClipboardList,
   Sliders,
   Compass,
-  FileText
+  Calendar
 } from 'lucide-react';
+import { useLanguage } from '../services/LanguageContext';
 
 interface SidebarProps {
   currentView: string;
@@ -27,61 +28,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
   reorderAlertCount,
   deadStockCount
 }) => {
+  const { t } = useLanguage();
+
   const navSections = [
     {
       title: 'OVERVIEW',
       items: [
-        { id: 'dashboard', label: 'Main Dashboard', icon: LayoutDashboard },
-        { id: 'weekly-review', label: 'Weekly Stock Review', icon: CalendarCheck },
+        { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard },
+        { id: 'weekly-review', label: t('weeklyReview'), icon: CalendarCheck },
       ]
     },
     {
       title: 'OPERATIONS',
       items: [
-        { id: 'catalog', label: 'Product Catalog', icon: ShoppingBag },
-        { id: 'inventory', label: 'Inventory Balances', icon: Boxes },
-        { id: 'imports', label: 'Sales Import Center', icon: FileSpreadsheet },
+        { id: 'catalog', label: t('catalog'), icon: ShoppingBag },
+        { id: 'inventory', label: t('inventory'), icon: Boxes },
+        { id: 'imports', label: t('imports'), icon: FileSpreadsheet },
       ]
     },
     {
       title: 'PREDICTIVE INTELLIGENCE',
       items: [
-        { id: 'forecasting', label: 'Demand Forecasting', icon: TrendingUp },
+        { id: 'forecasting', label: t('forecasting'), icon: TrendingUp },
         { 
           id: 'replenishment', 
-          label: 'Reorder Suggestions', 
+          label: t('replenishment'), 
           icon: AlertTriangle,
           badge: reorderAlertCount > 0 ? `${reorderAlertCount}` : undefined,
           badgeType: 'error'
         },
         { 
           id: 'dead-stock', 
-          label: 'Dead-Stock Detection', 
+          label: t('deadStock'), 
           icon: Boxes,
           badge: deadStockCount > 0 ? `${deadStockCount}` : undefined,
           badgeType: 'warning'
         },
-        { id: 'simulator', label: 'What-If Simulator', icon: Sliders },
+        { id: 'calendar', label: t('calendar'), icon: Calendar },
+        { id: 'simulator', label: t('simulator'), icon: Sliders },
       ]
     },
     {
       title: 'PROCUREMENT',
       items: [
-        { id: 'suppliers', label: 'Suppliers & Vendors', icon: Users },
-        { id: 'procurement', label: 'Purchase Orders', icon: ClipboardList },
+        { id: 'suppliers', label: t('suppliers'), icon: Users },
+        { id: 'procurement', label: t('procurement'), icon: ClipboardList },
       ]
     },
     {
       title: 'EXPLORE & DOCS',
       items: [
-        { id: 'landing', label: 'Product Showcase', icon: Compass },
+        { id: 'landing', label: t('landingShowcase'), icon: Compass },
       ]
     }
   ];
 
   return (
     <aside style={{
-      width: '240px',
+      width: '250px',
       backgroundColor: 'var(--surface-cream)',
       borderRight: '1px solid var(--border-beige)',
       height: 'calc(100vh - 64px)',
@@ -118,25 +122,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       width: '100%',
-                      padding: '9px 12px',
+                      padding: '10px 12px',
                       borderRadius: 'var(--radius-md)',
-                      border: '1px solid',
-                      borderColor: isActive ? 'var(--primary-forest)' : 'transparent',
                       backgroundColor: isActive ? 'var(--primary-forest-soft)' : 'transparent',
-                      color: isActive ? 'var(--primary-forest)' : 'var(--text-charcoal-subtle)',
-                      fontWeight: isActive ? 700 : 500,
-                      fontSize: '13px',
+                      color: isActive ? 'var(--primary-forest)' : 'var(--text-charcoal)',
+                      border: 'none',
                       cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all var(--transition-fast)'
+                      fontSize: '13px',
+                      fontWeight: isActive ? 700 : 500,
+                      transition: 'all 0.15s ease',
+                      textAlign: 'left'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <Icon size={16} strokeWidth={isActive ? 2.5 : 1.8} color={isActive ? 'var(--primary-forest)' : 'var(--text-warm-gray)'} />
+                      <Icon size={17} color={isActive ? 'var(--primary-forest)' : 'var(--text-warm-gray)'} />
                       <span>{item.label}</span>
                     </div>
+
                     {item.badge && (
-                      <span className={item.badgeType === 'error' ? 'badge badge-error' : 'badge badge-warning'} style={{ fontSize: '10.5px', padding: '2px 6px' }}>
+                      <span style={{
+                        fontSize: '10.5px',
+                        fontWeight: 800,
+                        padding: '2px 7px',
+                        borderRadius: 'var(--radius-pill)',
+                        backgroundColor: item.badgeType === 'error' ? 'var(--status-error)' : 'var(--accent-orange)',
+                        color: '#fff'
+                      }}>
                         {item.badge}
                       </span>
                     )}
@@ -148,18 +159,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ))}
       </div>
 
-      {/* Brand footer assurance */}
+      {/* Footer System Status */}
       <div style={{
-        padding: '12px',
-        backgroundColor: 'var(--surface-tint)',
-        borderRadius: 'var(--radius-md)',
-        border: '1px solid var(--border-subtle)',
-        fontSize: '11.5px',
-        color: 'var(--text-charcoal-subtle)',
-        lineHeight: 1.4
+        padding: '14px 12px',
+        borderTop: '1px solid var(--border-beige)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px'
       }}>
-        <div style={{ fontWeight: 700, color: 'var(--primary-forest)' }}>DemandIQ v1.0</div>
-        <div>No blue UI guarantee. Authentic Indian retail forecasting.</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--status-success)' }} />
+          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-charcoal)' }}>DemandIQ Core 1.0</span>
+        </div>
+        <div style={{ fontSize: '11px', color: 'var(--text-warm-gray)' }}>
+          Local processing • Zero external APIs
+        </div>
       </div>
     </aside>
   );

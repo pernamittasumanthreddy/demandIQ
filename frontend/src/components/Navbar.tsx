@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { Package, Bell, RefreshCw, Sparkles, Building2, ChevronDown, Check } from 'lucide-react';
+import {
+  Package,
+  Bell,
+  RefreshCw,
+  Sparkles,
+  Building2,
+  ChevronDown,
+  Check,
+  Sliders,
+  Globe
+} from 'lucide-react';
 import { Business, Branch, NotificationItem } from '../types';
+import { useLanguage, Language } from '../services/LanguageContext';
 
 interface NavbarProps {
   business: Business | null;
@@ -10,6 +21,7 @@ interface NavbarProps {
   onSeedDemo: () => Promise<void>;
   currentView: string;
   onNavigate: (view: string) => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -20,7 +32,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSeedDemo,
   currentView,
   onNavigate,
+  onOpenOnboarding,
 }) => {
+  const { language, setLanguage, t } = useLanguage();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showBranchMenu, setShowBranchMenu] = useState(false);
   const [seeding, setSeeding] = useState(false);
@@ -54,6 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div 
           onClick={() => onNavigate('landing')} 
           style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          title="Back to Landing Page"
         >
           <div style={{
             width: '36px',
@@ -150,7 +165,49 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Right Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Language Switcher Pills */}
+        <div style={{
+          display: 'flex',
+          backgroundColor: 'var(--surface-tint)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '2px',
+          border: '1px solid var(--border-beige)'
+        }}>
+          {(['en', 'hi', 'te'] as Language[]).map((l) => (
+            <button
+              key={l}
+              onClick={() => setLanguage(l)}
+              style={{
+                padding: '4px 8px',
+                fontSize: '11px',
+                fontWeight: language === l ? 700 : 500,
+                backgroundColor: language === l ? 'var(--primary-forest)' : 'transparent',
+                color: language === l ? '#FFFFFF' : 'var(--text-charcoal)',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              title={l === 'en' ? 'English' : l === 'hi' ? 'हिंदी (Hindi)' : 'తెలుగు (Telugu)'}
+            >
+              {l === 'en' ? 'EN' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'}
+            </button>
+          ))}
+        </div>
+
+        {/* Store Setup Wizard Button */}
+        {onOpenOnboarding && (
+          <button
+            onClick={onOpenOnboarding}
+            className="btn btn-secondary btn-sm"
+            title="Configure store profile, currency & safety policy"
+          >
+            <Sliders size={14} color="var(--primary-forest)" />
+            <span>Store Setup</span>
+          </button>
+        )}
+
         {/* Seed Demo Action */}
         <button
           onClick={handleSeed}
@@ -160,7 +217,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           style={{ borderColor: 'var(--accent-sage)', color: 'var(--primary-forest)' }}
         >
           <Sparkles size={14} color="var(--accent-orange)" />
-          <span>{seeding ? 'Seeding Demo Data...' : 'Reset / Seed Demo Store'}</span>
+          <span>{seeding ? 'Seeding...' : 'Reset Demo'}</span>
         </button>
 
         {/* Notifications Icon */}

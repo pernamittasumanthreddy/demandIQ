@@ -8,7 +8,11 @@ import {
   Calendar,
   Sparkles,
   ShoppingBag,
-  Clock
+  Clock,
+  ArrowRight,
+  Flame,
+  CheckCircle2,
+  Sliders
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -23,17 +27,22 @@ import {
 } from 'recharts';
 import { ApiClient } from '../services/api';
 import { Product, ReorderRecommendation, DeadStockAnalysis } from '../types';
+import { useLanguage } from '../services/LanguageContext';
 
 interface DashboardViewProps {
   onNavigate: (view: string) => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
+  const { language, t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState<any>(null);
   const [weeklyReview, setWeeklyReview] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<ReorderRecommendation[]>([]);
   const [deadStock, setDeadStock] = useState<DeadStockAnalysis[]>([]);
+
+  // Mini What-If State
+  const [simDemandSurge, setSimDemandSurge] = useState<number>(20);
 
   useEffect(() => {
     loadData();
@@ -61,6 +70,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const totalReorderCost = recommendations.reduce((acc, r) => acc + Number(r.estimated_cost || 0), 0);
   const totalDeadCapital = deadStock.reduce((acc, d) => acc + (d.classification !== 'HEALTHY' ? Number(d.capital_at_risk || 0) : 0), 0);
 
+  // Simulated metrics based on slider
+  const baseRevenue = overview?.summary?.total_revenue ? Number(overview.summary.total_revenue) : 284350;
+  const simulatedRevenue = Math.round(baseRevenue * (1 + simDemandSurge / 100));
+  const additionalProfit = Math.round((simulatedRevenue - baseRevenue) * 0.214);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Editorial Header */}
@@ -69,79 +83,229 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         borderBottom: '1px solid var(--border-beige)',
-        paddingBottom: '16px'
+        paddingBottom: '16px',
+        flexWrap: 'wrap',
+        gap: '12px'
       }}>
         <div>
           <h1 className="editorial-title" style={{ fontSize: '28px', color: 'var(--text-charcoal)' }}>
-            Store Performance & Stock Health
+            {t('dashboard')}
           </h1>
           <p style={{ color: 'var(--text-warm-gray)', fontSize: '14px', marginTop: '4px' }}>
-            Sri Lakshmi Supermarket & Kirana • Authentic 30-Day Performance Overview
+            Sri Lakshmi Supermarket & Kirana • {t('dailyBriefingSub')}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => onNavigate('weekly-review')} className="btn btn-secondary">
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button onClick={() => onNavigate('calendar')} className="btn btn-secondary">
             <Calendar size={15} color="var(--primary-forest)" />
-            <span>Weekly Stock Review</span>
+            <span>{t('calendar')}</span>
+          </button>
+          <button onClick={() => onNavigate('weekly-review')} className="btn btn-secondary">
+            <Clock size={15} color="var(--primary-forest)" />
+            <span>{t('weeklyReview')}</span>
           </button>
           <button onClick={() => onNavigate('forecasting')} className="btn btn-primary">
             <TrendingUp size={15} color="var(--surface-cream)" />
-            <span>Forecast Explorer</span>
+            <span>{t('forecasting')}</span>
           </button>
         </div>
       </div>
 
-      {/* Humanized Weekly Intelligence Digest */}
-      {weeklyReview?.action_highlights && weeklyReview.action_highlights.length > 0 && (
-        <div style={{
-          backgroundColor: 'var(--surface-cream)',
-          border: '1px solid var(--border-beige)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px',
-          boxShadow: 'var(--shadow-xs)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px'
-        }}>
+      {/* Daily Morning Stock Briefing Card */}
+      <div style={{
+        backgroundColor: 'var(--surface-cream)',
+        border: '1px solid var(--border-beige)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '20px',
+        boxShadow: 'var(--shadow-sm)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge badge-sage" style={{ fontSize: '11px' }}>WEEKLY INTELLIGENCE DIGEST</span>
-            <span style={{ fontSize: '12.5px', color: 'var(--text-warm-gray)' }}>{weeklyReview.review_period}</span>
+            <div style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--primary-forest)',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Sparkles size={14} />
+            </div>
+            <span style={{ fontWeight: 800, fontSize: '15px', color: 'var(--text-charcoal)' }}>
+              {t('dailyBriefingTitle')}
+            </span>
+            <span style={{
+              backgroundColor: 'var(--primary-forest-soft)',
+              color: 'var(--primary-forest)',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: '4px'
+            }}>
+              LIVE INTELLIGENCE
+            </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-            {weeklyReview.action_highlights.map((item: any, idx: number) => (
-              <div
-                key={idx}
-                style={{
-                  padding: '14px',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: item.type === 'CRITICAL_REORDER' ? 'var(--status-error-bg)' : (item.type === 'DEAD_STOCK' ? 'var(--status-warning-bg)' : 'var(--surface-tint)'),
-                  border: '1px solid var(--border-subtle)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px'
-                }}
+          <span style={{ fontSize: '12px', color: 'var(--text-warm-gray)' }}>
+            {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+          {/* Briefing Item 1: Urgent Reorder */}
+          <div style={{
+            padding: '12px 14px',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: criticalRecs.length > 0 ? 'var(--status-error-bg)' : 'var(--primary-forest-soft)',
+            border: '1px solid var(--border-subtle)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{
+              fontWeight: 700,
+              fontSize: '13px',
+              color: criticalRecs.length > 0 ? 'var(--status-error)' : 'var(--primary-forest)'
+            }}>
+              {criticalRecs.length > 0
+                ? `${criticalRecs.length} ${language === 'te' ? 'వస్తువులు అత్యవసరంగా ఆర్డర్ చేయాలి' : language === 'hi' ? 'उत्पादों को तुरंत री-ऑर्डर करने की आवश्यकता है' : 'Items Urgently Need Replenishment'}`
+                : 'All Safety Stocks Optimal'}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-charcoal-subtle)' }}>
+              {criticalRecs.length > 0
+                ? `${criticalRecs[0].product_name} will stock out in ${criticalRecs[0].estimated_stockout_days || 2} days. Suggested order: ${criticalRecs[0].suggested_quantity} units.`
+                : 'Zero stockouts forecasted across current supplier lead times.'}
+            </div>
+            {criticalRecs.length > 0 && (
+              <span
+                onClick={() => onNavigate('replenishment')}
+                style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--status-error)', cursor: 'pointer', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
-                <div style={{
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  color: item.type === 'CRITICAL_REORDER' ? 'var(--status-error)' : (item.type === 'DEAD_STOCK' ? 'var(--status-warning)' : 'var(--primary-forest)')
-                }}>
-                  {item.title}
-                </div>
-                <div style={{ fontSize: '12.5px', color: 'var(--text-charcoal-subtle)', lineHeight: 1.4 }}>
-                  {item.message}
-                </div>
-              </div>
-            ))}
+                <span>{t('reorderNow')}</span>
+                <ArrowRight size={12} />
+              </span>
+            )}
+          </div>
+
+          {/* Briefing Item 2: Demand Trend */}
+          <div style={{
+            padding: '12px 14px',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: 'var(--surface-tint)',
+            border: '1px solid var(--border-subtle)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--primary-forest)' }}>
+              {language === 'te' ? 'సోనా మసూరి బియ్యం డిమాండ్ పెరుగుతోంది' : language === 'hi' ? 'सोना मसूरी चावल की मांग में वृद्धि' : 'Rice Demand Accelerating (+18%)'}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-charcoal-subtle)' }}>
+              Weekend household grocery purchases trended 18% higher than weekday moving averages.
+            </div>
+            <span
+              onClick={() => onNavigate('forecasting')}
+              style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--primary-forest)', cursor: 'pointer', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <span>View Time-Series ML Model</span>
+              <ArrowRight size={12} />
+            </span>
+          </div>
+
+          {/* Briefing Item 3: Dead Capital Recovery */}
+          <div style={{
+            padding: '12px 14px',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: totalDeadCapital > 0 ? 'var(--status-warning-bg)' : 'var(--surface-tint)',
+            border: '1px solid var(--border-subtle)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--accent-orange)' }}>
+              {language === 'te' ? `₹${totalDeadCapital.toLocaleString('en-IN')} నిరుపయోగ మూలధనం విడుదల చేయవచ్చు` : language === 'hi' ? `₹${totalDeadCapital.toLocaleString('en-IN')} फंसी हुई पूंजी मुक्त की जा सकती है` : `Unlock ₹${totalDeadCapital.toLocaleString('en-IN')} in Working Capital`}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-charcoal-subtle)' }}>
+              Slow-moving goods have zero velocity past 60 days. Bundle promotion recommended.
+            </div>
+            <span
+              onClick={() => onNavigate('dead-stock')}
+              style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--accent-orange)', cursor: 'pointer', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <span>Review Clearance Actions</span>
+              <ArrowRight size={12} />
+            </span>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Upcoming Indian Festival Alert Banner */}
+      <div style={{
+        backgroundColor: 'var(--lp-forest-dark, #123D2E)',
+        color: '#FFFFFF',
+        borderRadius: 'var(--radius-lg)',
+        padding: '16px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '14px',
+        boxShadow: '0 4px 14px rgba(18, 61, 46, 0.15)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(217, 121, 61, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--lp-orange, #D9793D)'
+          }}>
+            <Flame size={20} />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontWeight: 800, fontSize: '15px' }}>
+                Diwali & Dhanteras in 18 Days (+85% Festive Surge Expected)
+              </span>
+              <span style={{
+                backgroundColor: 'var(--lp-orange, #D9793D)',
+                color: '#fff',
+                fontSize: '10.5px',
+                fontWeight: 700,
+                padding: '2px 6px',
+                borderRadius: '4px'
+              }}>
+                PREP CUTOFF
+              </span>
+            </div>
+            <div style={{ fontSize: '12.5px', color: '#A8B99A', marginTop: '2px' }}>
+              High-value items (Ghee 1L, Dry fruits, Edible oils, Pooja essentials) require wholesale booking by this Friday.
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => onNavigate('calendar')}
+          className="btn btn-primary"
+          style={{ backgroundColor: '#FFFFFF', color: '#123D2E', fontWeight: 700, fontSize: '13px' }}
+        >
+          <span>Open Demand Calendar</span>
+          <ArrowRight size={14} color="#123D2E" />
+        </button>
+      </div>
 
       {/* KPI Metric Cards Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
         <div className="metric-card">
-          <div className="metric-label">30-Day Net Revenue</div>
+          <div className="metric-label">{t('totalSales')}</div>
           <div className="metric-value">
             ₹{overview?.summary?.total_revenue ? Number(overview.summary.total_revenue).toLocaleString('en-IN') : '2,84,350'}
           </div>
@@ -162,7 +326,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         </div>
 
         <div className="metric-card">
-          <div className="metric-label">Stockout Warnings</div>
+          <div className="metric-label">{t('lowStockAlerts')}</div>
           <div className="metric-value" style={{ color: criticalRecs.length > 0 ? 'var(--status-error)' : 'var(--text-charcoal)' }}>
             {criticalRecs.length} Products
           </div>
@@ -184,7 +348,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         </div>
 
         <div className="metric-card">
-          <div className="metric-label">Idle Dead Capital</div>
+          <div className="metric-label">{t('deadCapital')}</div>
           <div className="metric-value" style={{ color: totalDeadCapital > 0 ? 'var(--status-warning)' : 'var(--text-charcoal)' }}>
             ₹{totalDeadCapital ? totalDeadCapital.toLocaleString('en-IN') : '18,400'}
           </div>
@@ -219,117 +383,62 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 <XAxis dataKey="date" tick={{ fill: '#817D74', fontSize: 11 }} tickFormatter={(val) => val.slice(5)} />
                 <YAxis tick={{ fill: '#817D74', fontSize: 11 }} tickFormatter={(v) => `₹${v}`} />
                 <Tooltip
-                  formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Daily Revenue']}
-                  contentStyle={{ backgroundColor: '#FFFDF8', borderColor: '#E5DED2', borderRadius: '8px', color: '#302F2B' }}
+                  formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Sales Revenue']}
+                  contentStyle={{ backgroundColor: 'var(--surface-cream)', borderColor: 'var(--border-beige)', borderRadius: '8px' }}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#355E3B" strokeWidth={2.5} fillOpacity={1} fill="url(#forestArea)" />
+                <Area type="monotone" dataKey="total_sales" stroke="#355E3B" strokeWidth={2.5} fillOpacity={1} fill="url(#forestArea)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Category Breakdown Bar Chart */}
-        <div className="card" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 700 }}>Revenue by Category</h2>
-              <p style={{ fontSize: '12px', color: 'var(--text-warm-gray)' }}>Top contributing retail departments</p>
+        {/* Quick What-If Mini Simulator Widget */}
+        <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <Sliders size={16} color="var(--primary-forest)" />
+              <h2 style={{ fontSize: '15px', fontWeight: 700 }}>Quick What-If Estimator</h2>
+            </div>
+            <p style={{ fontSize: '12px', color: 'var(--text-warm-gray)', marginBottom: '16px' }}>
+              Simulate store sales surge on 30-day net revenue & gross profits
+            </p>
+
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 600 }}>Demand Lift:</span>
+                <span style={{ fontWeight: 800, color: 'var(--primary-forest)' }}>+{simDemandSurge}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="60"
+                step="5"
+                value={simDemandSurge}
+                onChange={(e) => setSimDemandSurge(parseInt(e.target.value))}
+                style={{ width: '100%', accentColor: 'var(--primary-forest)' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', backgroundColor: 'var(--surface-tint)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span style={{ color: 'var(--text-warm-gray)' }}>Projected Sales:</span>
+                <span style={{ fontWeight: 800, color: 'var(--text-charcoal)' }}>₹{simulatedRevenue.toLocaleString('en-IN')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span style={{ color: 'var(--text-warm-gray)' }}>Additional Profit:</span>
+                <span style={{ fontWeight: 800, color: 'var(--primary-forest)' }}>+₹{additionalProfit.toLocaleString('en-IN')}</span>
+              </div>
             </div>
           </div>
 
-          <div style={{ height: '240px', width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={overview?.category_breakdown?.slice(0, 5) || []} layout="vertical" margin={{ top: 5, right: 10, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5DED2" horizontal={false} />
-                <XAxis type="number" tick={{ fill: '#817D74', fontSize: 11 }} tickFormatter={(v) => `₹${v}`} />
-                <YAxis type="category" dataKey="category" tick={{ fill: '#302F2B', fontSize: 11 }} width={90} />
-                <Tooltip
-                  formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Revenue']}
-                  contentStyle={{ backgroundColor: '#FFFDF8', borderColor: '#E5DED2', borderRadius: '8px', color: '#302F2B' }}
-                />
-                <Bar dataKey="revenue" fill="#D9874C" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Urgent Replenishment Action Items */}
-      <div className="card" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div>
-            <h2 style={{ fontSize: '16px', fontWeight: 700 }}>Action Required: Products Nearing Stockout</h2>
-            <p style={{ fontSize: '12.5px', color: 'var(--text-warm-gray)' }}>
-              Computed from supplier lead times, recent consumption velocity, and safety buffers
-            </p>
-          </div>
-          <button onClick={() => onNavigate('replenishment')} className="btn btn-secondary btn-sm">
-            View All ({recommendations.length})
+          <button
+            onClick={() => onNavigate('simulator')}
+            className="btn btn-secondary btn-sm"
+            style={{ width: '100%', justifyContent: 'center', marginTop: '14px' }}
+          >
+            <span>Open Full Scenario Workspace</span>
+            <ArrowRight size={13} />
           </button>
-        </div>
-
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Current Stock</th>
-                <th>Avg Daily Demand</th>
-                <th>Lead Time</th>
-                <th>Reorder Point</th>
-                <th>Suggested Order</th>
-                <th>Est. Cost</th>
-                <th>Urgency</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recommendations.length === 0 ? (
-                <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-warm-gray)' }}>
-                    No pending replenishment recommendations. Click "Reset / Seed Demo Store" to generate real demonstration scenarios.
-                  </td>
-                </tr>
-              ) : (
-                recommendations.slice(0, 5).map((rec) => (
-                  <tr key={rec.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{rec.product_name}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-warm-gray)' }}>SKU: {rec.product_sku}</div>
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: 700, color: rec.urgency === 'CRITICAL' ? 'var(--status-error)' : 'var(--text-charcoal)' }}>
-                        {rec.current_stock} {rec.product_unit}
-                      </span>
-                    </td>
-                    <td>{rec.avg_daily_demand}/day</td>
-                    <td>{rec.lead_time_days} days</td>
-                    <td>{rec.reorder_point}</td>
-                    <td>
-                      <span style={{ fontWeight: 700, color: 'var(--primary-forest)' }}>
-                        {rec.suggested_quantity} {rec.product_unit}
-                      </span>
-                    </td>
-                    <td>₹{Number(rec.estimated_cost).toLocaleString('en-IN')}</td>
-                    <td>
-                      <span className={rec.urgency === 'CRITICAL' ? 'badge badge-error' : 'badge badge-warning'}>
-                        {rec.urgency}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => onNavigate('procurement')}
-                        className="btn btn-secondary btn-sm"
-                        style={{ fontSize: '12px' }}
-                      >
-                        Create PO
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

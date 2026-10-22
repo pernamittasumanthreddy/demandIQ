@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useLanguage, Language } from '../../services/LanguageContext';
 
 interface LandingNavbarProps {
   onLoginClick: () => void;
@@ -12,6 +13,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
   onGetStartedClick,
   onNavigateSection,
 }) => {
+  const { language, setLanguage, t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<string>('hero');
@@ -55,6 +57,25 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
     }
   };
 
+  const getNavLabel = (key: string) => {
+    switch (key) {
+      case 'home':
+        return language === 'hi' ? 'होम' : language === 'te' ? 'హోమ్' : 'Home';
+      case 'features':
+        return language === 'hi' ? 'सुविधाएं' : language === 'te' ? 'ఫీచర్లు' : 'Features';
+      case 'how-it-works':
+        return language === 'hi' ? 'कार्यविधि' : language === 'te' ? 'ఎలా పనిచేస్తుంది' : 'How It Works';
+      case 'testimonials':
+        return language === 'hi' ? 'समीक्षाएं' : language === 'te' ? 'అనుభవాలు' : 'Testimonials';
+      case 'pricing':
+        return language === 'hi' ? 'योजनाएं' : language === 'te' ? 'ధరలు' : 'Pricing';
+      case 'contact':
+        return language === 'hi' ? 'संपर्क' : language === 'te' ? 'సంప్రదించండి' : 'Contact';
+      default:
+        return key;
+    }
+  };
+
   return (
     <header className={`landing-nav ${isScrolled ? 'scrolled' : ''}`}>
       <div className="landing-nav-inner">
@@ -63,17 +84,14 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           <div className="landing-logo-icon">
             {/* Custom 2-Leaf Brand SVG Motif */}
             <svg viewBox="0 0 32 32" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Primary Green Leaf */}
               <path
                 d="M16 4 C8 12 6 22 16 28 C26 22 24 12 16 4 Z"
                 fill="#A8B99A"
               />
-              {/* Orange Accent Leaf */}
               <path
                 d="M16 12 C10 17 9 24 16 28 C23 24 22 17 16 12 Z"
                 fill="#D9793D"
               />
-              {/* Leaf Stem line */}
               <path
                 d="M16 8 L16 28"
                 stroke="#123D2E"
@@ -84,7 +102,9 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           </div>
           <div className="landing-logo-text">
             <span className="landing-brand-name">DemandIQ</span>
-            <span className="landing-brand-tagline">Know What Sells. Stock What Matters.</span>
+            <span className="landing-brand-tagline">
+              {language === 'hi' ? 'मांग का पूर्वानुमान • सटीक स्टॉक' : language === 'te' ? 'డిమాండ్ అంచనా • సరైన స్టాక్' : 'Know What Sells. Stock What Matters.'}
+            </span>
           </div>
         </div>
 
@@ -96,7 +116,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 className={`landing-nav-link ${activeSection === 'hero' ? 'active' : ''}`}
                 onClick={() => scrollTo('hero')}
               >
-                Home
+                {getNavLabel('home')}
               </span>
             </li>
             <li>
@@ -104,7 +124,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 className={`landing-nav-link ${activeSection === 'features' ? 'active' : ''}`}
                 onClick={() => scrollTo('features')}
               >
-                Features
+                {getNavLabel('features')}
               </span>
             </li>
             <li>
@@ -112,7 +132,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 className={`landing-nav-link ${activeSection === 'how-it-works' ? 'active' : ''}`}
                 onClick={() => scrollTo('how-it-works')}
               >
-                How It Works
+                {getNavLabel('how-it-works')}
               </span>
             </li>
             <li>
@@ -120,7 +140,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 className={`landing-nav-link ${activeSection === 'testimonials' ? 'active' : ''}`}
                 onClick={() => scrollTo('testimonials')}
               >
-                Testimonials
+                {getNavLabel('testimonials')}
               </span>
             </li>
             <li>
@@ -128,7 +148,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 className={`landing-nav-link ${activeSection === 'pricing' ? 'active' : ''}`}
                 onClick={() => scrollTo('pricing')}
               >
-                Pricing
+                {getNavLabel('pricing')}
               </span>
             </li>
             <li>
@@ -136,27 +156,57 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 className={`landing-nav-link ${activeSection === 'contact' ? 'active' : ''}`}
                 onClick={() => scrollTo('contact')}
               >
-                Contact
+                {getNavLabel('contact')}
               </span>
             </li>
           </ul>
         </nav>
 
-        {/* Action Buttons */}
+        {/* Action Buttons & Language Switcher */}
         <div className="landing-nav-actions">
+          {/* Language Selector */}
+          <div style={{
+            display: 'flex',
+            backgroundColor: 'rgba(18, 61, 46, 0.06)',
+            borderRadius: '8px',
+            padding: '2px',
+            border: '1px solid var(--lp-beige-border)'
+          }}>
+            {(['en', 'hi', 'te'] as Language[]).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLanguage(l)}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  fontWeight: language === l ? 700 : 500,
+                  backgroundColor: language === l ? 'var(--lp-forest-dark)' : 'transparent',
+                  color: language === l ? '#FFFFFF' : 'var(--lp-charcoal)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                title={l === 'en' ? 'English' : l === 'hi' ? 'हिंदी (Hindi)' : 'తెలుగు (Telugu)'}
+              >
+                {l === 'en' ? 'EN' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'}
+              </button>
+            ))}
+          </div>
+
           <button
             onClick={onLoginClick}
             className="btn-nav-login"
             aria-label="Log in to DemandIQ"
           >
-            Log In
+            {t('login')}
           </button>
           <button
             onClick={onGetStartedClick}
             className="btn-nav-cta"
             aria-label="Get Started Free"
           >
-            <span>Get Started Free</span>
+            <span>{t('getStarted')}</span>
             <ArrowRight size={15} />
           </button>
 
@@ -174,18 +224,18 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
       {/* Mobile Nav Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer">
-          <span className="landing-nav-link" onClick={() => scrollTo('hero')}>Home</span>
-          <span className="landing-nav-link" onClick={() => scrollTo('features')}>Features</span>
-          <span className="landing-nav-link" onClick={() => scrollTo('how-it-works')}>How It Works</span>
-          <span className="landing-nav-link" onClick={() => scrollTo('testimonials')}>Testimonials</span>
-          <span className="landing-nav-link" onClick={() => scrollTo('pricing')}>Pricing</span>
-          <span className="landing-nav-link" onClick={() => scrollTo('contact')}>Contact</span>
+          <span className="landing-nav-link" onClick={() => scrollTo('hero')}>{getNavLabel('home')}</span>
+          <span className="landing-nav-link" onClick={() => scrollTo('features')}>{getNavLabel('features')}</span>
+          <span className="landing-nav-link" onClick={() => scrollTo('how-it-works')}>{getNavLabel('how-it-works')}</span>
+          <span className="landing-nav-link" onClick={() => scrollTo('testimonials')}>{getNavLabel('testimonials')}</span>
+          <span className="landing-nav-link" onClick={() => scrollTo('pricing')}>{getNavLabel('pricing')}</span>
+          <span className="landing-nav-link" onClick={() => scrollTo('contact')}>{getNavLabel('contact')}</span>
           <div style={{ display: 'flex', gap: '10px', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--lp-beige-border)' }}>
             <button onClick={onLoginClick} className="btn-nav-login" style={{ flex: 1 }}>
-              Log In
+              {t('login')}
             </button>
             <button onClick={onGetStartedClick} className="btn-nav-cta" style={{ flex: 1, justifyContent: 'center' }}>
-              <span>Get Started</span>
+              <span>{t('getStarted')}</span>
               <ArrowRight size={14} />
             </button>
           </div>

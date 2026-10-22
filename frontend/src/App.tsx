@@ -13,10 +13,13 @@ import { SuppliersView } from './pages/SuppliersView';
 import { PurchaseOrdersView } from './pages/PurchaseOrdersView';
 import { SimulatorView } from './pages/SimulatorView';
 import { WeeklyReviewView } from './pages/WeeklyReviewView';
+import { DemandCalendarView } from './pages/DemandCalendarView';
+import { OnboardingWizard } from './components/OnboardingWizard';
+import { LanguageProvider } from './services/LanguageContext';
 import { ApiClient } from './services/api';
 import { Business, Branch, NotificationItem } from './types';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('landing');
   const [business, setBusiness] = useState<Business | null>(null);
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
@@ -24,6 +27,7 @@ export const App: React.FC = () => {
   const [reorderAlertCount, setReorderAlertCount] = useState<number>(0);
   const [deadStockCount, setDeadStockCount] = useState<number>(0);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
 
   useEffect(() => {
     initApp();
@@ -81,6 +85,15 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleOnboardingComplete = (settings: any) => {
+    if (business && settings.storeName) {
+      setBusiness({
+        ...business,
+        name: settings.storeName
+      });
+    }
+  };
+
   const renderActiveView = () => {
     switch (currentView) {
       case 'landing':
@@ -101,6 +114,8 @@ export const App: React.FC = () => {
         return <InventoryView />;
       case 'imports':
         return <ImportsView />;
+      case 'calendar':
+        return <DemandCalendarView />;
       case 'suppliers':
         return <SuppliersView />;
       case 'procurement':
@@ -123,6 +138,7 @@ export const App: React.FC = () => {
           onSeedDemo={handleSeedDemo}
           currentView={currentView}
           onNavigate={setCurrentView}
+          onOpenOnboarding={() => setShowOnboarding(true)}
         />
       )}
 
@@ -146,6 +162,22 @@ export const App: React.FC = () => {
           {renderActiveView()}
         </main>
       </div>
+
+      {/* Onboarding Setup Wizard */}
+      <OnboardingWizard
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={handleOnboardingComplete}
+        initialBusinessName={business?.name || 'Sri Lakshmi Supermarket & Kirana'}
+      />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
