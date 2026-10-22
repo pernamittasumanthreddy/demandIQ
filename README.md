@@ -232,3 +232,5 @@ DemandIQ/
 ## 📄 License
 This project is developed for Indian local retailers under the MIT License.
 *DemandIQ — Know What Sells. Stock What Matters. Grow with Confidence.*
+#   d e m a n d I Q  
+ 
