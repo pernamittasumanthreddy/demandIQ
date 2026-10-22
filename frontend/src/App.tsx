@@ -17,7 +17,7 @@ import { ApiClient } from './services/api';
 import { Business, Branch, NotificationItem } from './types';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<string>('dashboard');
+  const [currentView, setCurrentView] = useState<string>('landing');
   const [business, setBusiness] = useState<Business | null>(null);
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -114,15 +114,17 @@ export const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-ivory)', display: 'flex', flexDirection: 'column' }}>
-      <Navbar
-        business={business}
-        activeBranch={activeBranch}
-        onSelectBranch={setActiveBranch}
-        notifications={notifications}
-        onSeedDemo={handleSeedDemo}
-        currentView={currentView}
-        onNavigate={setCurrentView}
-      />
+      {currentView !== 'landing' && (
+        <Navbar
+          business={business}
+          activeBranch={activeBranch}
+          onSelectBranch={setActiveBranch}
+          notifications={notifications}
+          onSeedDemo={handleSeedDemo}
+          currentView={currentView}
+          onNavigate={setCurrentView}
+        />
+      )}
 
       <div style={{ display: 'flex', flex: 1 }}>
         {currentView !== 'landing' && (

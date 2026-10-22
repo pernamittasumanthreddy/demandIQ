@@ -1,0 +1,143 @@
+/* ==========================================================================
+   DemandIQ — Natural Floating Leaf Animations
+   Strict Zero-Blue Warm Palette: #123D2E, #20583D, #A8B99A, #D9793D, #EDE5D3
+   Continuous, subtle breeze-like motion with GPU-accelerated translate3d
+   ========================================================================== */
+
+@keyframes leafFloatSlow {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(4px, -15px, 0) rotate(6deg);
+  }
+}
+
+@keyframes leafFloatGentle {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-6px, -12px, 0) rotate(-5deg);
+  }
+}
+
+@keyframes leafRotateSway {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-7deg);
+  }
+  50% {
+    transform: translate3d(8px, -10px, 0) rotate(8deg);
+  }
+}
+
+@keyframes leafDriftHorizontal {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(12px, -6px, 0) rotate(4deg);
+  }
+  66% {
+    transform: translate3d(-10px, -14px, 0) rotate(-4deg);
+  }
+}
+
+@keyframes leafBreeze {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(-8px, -18px, 0) rotate(-8deg) scale(1.02);
+  }
+}
+
+@keyframes leafClusterSway {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(5px, -8px, 0) rotate(4deg);
+  }
+}
+
+/* Individual animation classes with distinct durations, easing, and delays */
+.leaf-anim-1 {
+  animation: leafFloatSlow 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.leaf-anim-2 {
+  animation: leafRotateSway 9.5s ease-in-out infinite;
+  animation-delay: -2.5s;
+  will-change: transform;
+}
+
+.leaf-anim-3 {
+  animation: leafDriftHorizontal 11s ease-in-out infinite;
+  animation-delay: -5s;
+  will-change: transform;
+}
+
+.leaf-anim-4 {
+  animation: leafBreeze 13s ease-in-out infinite;
+  animation-delay: -7s;
+  will-change: transform;
+}
+
+.leaf-anim-5 {
+  animation: leafFloatGentle 10s ease-in-out infinite;
+  animation-delay: -3.8s;
+  will-change: transform;
+}
+
+.leaf-anim-6 {
+  animation: leafClusterSway 12s ease-in-out infinite;
+  animation-delay: -1.2s;
+  will-change: transform;
+}
+
+.leaf-anim-7 {
+  animation: leafFloatSlow 14s ease-in-out infinite;
+  animation-delay: -8.5s;
+  will-change: transform;
+}
+
+.leaf-anim-8 {
+  animation: leafRotateSway 11.5s ease-in-out infinite;
+  animation-delay: -4.2s;
+  will-change: transform;
+}
+
+/* Container rules */
+.floating-leaves-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.floating-leaf {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  display: block;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .leaf-anim-1,
+  .leaf-anim-2,
+  .leaf-anim-3,
+  .leaf-anim-4,
+  .leaf-anim-5,
+  .leaf-anim-6,
+  .leaf-anim-7,
+  .leaf-anim-8 {
+    animation: none !important;
+  }
+}
